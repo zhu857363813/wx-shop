@@ -1,65 +1,73 @@
+import { Home } from 'home-model.js';
+var home = new Home(); //实例化 首页 对象
 Page({
+    data: {
+        loadingHidden: false
+    },
+    onLoad: function () {
+        this._loadData();
+    },
 
-  /**
-   * 页面的初始数据
-   */
-  data: {
-    
-  },
+    /*加载所有数据*/
+    _loadData:function(callback){
+        var that = this;
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    
-  },
+        // 获得bannar信息
+        home.getBannerData((data) => {
+            that.setData({
+                bannerArr: data,
+            });
+        });
 
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-    
-  },
+        /*获取主题信息*/
+        home.getThemeData((data) => {
+            that.setData({
+                themeArr: data,
+                loadingHidden: true
+            });
+        });
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-    
-  },
+        /*获取单品信息*/
+        home.getProductorData((data) => {
+            that.setData({
+                productsArr: data
+            });
+            callback&&callback();
+        });
+    },
 
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-    
-  },
+    /*跳转到商品详情*/
+    onProductsItemTap: function (event) {
+        var id = home.getDataSet(event, 'id');
+        wx.navigateTo({
+            url: '../product/product?id=' + id
+        })
+    },
 
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-    
-  },
+    /*跳转到主题列表*/
+    onThemesItemTap: function (event) {
+        var id = home.getDataSet(event, 'id');
+        var name = home.getDataSet(event, 'name');
+        wx.navigateTo({
+            url: '../theme/theme?id=' + id+'&name='+ name
+        })
+    },
 
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-    
-  },
+    /*下拉刷新页面*/
+    onPullDownRefresh: function(){
+        this._loadData(()=>{
+            wx.stopPullDownRefresh()
+        });
+    },
 
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-    
-  },
+    //分享效果
+    onShareAppMessage: function () {
+        return {
+            title: '零食商贩 Pretty Vendor',
+            path: 'pages/home/home'
+        }
+    }
 
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-    
-  }
 })
+
+
